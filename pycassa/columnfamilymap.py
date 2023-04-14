@@ -20,7 +20,10 @@ __all__ = ['ColumnFamilyMap']
 
 def create_instance(cls, **kwargs):
     instance = cls()
-    map(lambda (k,v): setattr(instance, k, v), kwargs.iteritems())
+    
+    for k, v in kwargs.items():
+        setattr(instance, k, v)
+
     return instance
 
 class ColumnFamilyMap(ColumnFamily):
@@ -67,7 +70,7 @@ class ColumnFamilyMap(ColumnFamily):
         if self.raw_columns:
             combined_columns['raw_columns'] = columns
 
-        for column, default in self.defaults.items():
+        for column, default in list(self.defaults.items()):
             combined_columns.setdefault(column, default)
 
         return combined_columns
@@ -98,7 +101,7 @@ class ColumnFamilyMap(ColumnFamily):
         if self.super:
             if 'super_column' not in kwargs:
                 vals = self.dict_class()
-                for super_column, subcols in columns.iteritems():
+                for super_column, subcols in columns.items():
                     combined = self.combine_columns(subcols)
                     vals[super_column] = create_instance(self.cls, key=key,
                             super_column=super_column, **combined)
@@ -127,11 +130,11 @@ class ColumnFamilyMap(ColumnFamily):
 
         kcmap = ColumnFamily.multiget(self, *args, **kwargs)
         ret = self.dict_class()
-        for key, columns in kcmap.iteritems():
+        for key, columns in kcmap.items():
             if self.super:
                 if 'super_column' not in kwargs:
                     vals = self.dict_class()
-                    for super_column, subcols in columns.iteritems():
+                    for super_column, subcols in columns.items():
                         combined = self.combine_columns(subcols)
                         vals[super_column] = create_instance(self.cls, key=key, super_column=super_column, **combined)
                     ret[key] = vals
@@ -175,7 +178,7 @@ class ColumnFamilyMap(ColumnFamily):
             if self.super:
                 if 'super_column' not in kwargs:
                     vals = self.dict_class()
-                    for super_column, subcols in columns.iteritems():
+                    for super_column, subcols in columns.items():
                         combined = self.combine_columns(subcols)
                         vals[super_column] = create_instance(self.cls, key=key, super_column=super_column, **combined)
                     yield vals
